@@ -2,14 +2,17 @@ package com.qnp.server.Controllers;
 
 import com.fasterxml.uuid.Generators;
 import com.qnp.server.Models.UsersModel;
-import com.qnp.server.Repositories.UsersRepository;
+import com.qnp.server.Repositories.UsersRepo;
 import com.qnp.server.Utils.Payloads.Auth.*;
 import com.qnp.server.Utils.CustomUserDetails;
+import com.qnp.server.Utils.Payloads.GeneralResponse;
 import com.qnp.server.Utils.jwt.JwtToken;
 import com.qnp.server.Utils.jwt.JwtUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -33,7 +36,7 @@ public class AuthApi {
     private JwtUserService jwtUserService;
 
     @Autowired
-    private UsersRepository usersRepository;
+    private UsersRepo usersRepo;
 
     @Autowired
     PasswordEncoder passwordEncoder;
@@ -49,14 +52,8 @@ public class AuthApi {
             );
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
-//            if(!authentication.isAuthenticated()){
-//                System.out.println("!isAuthenticated");
-//                return ResponseEntity.ok(new LoginResponse(false, "Username or password incorrect", null, null));
-//            }
-
-            // Trả về jwt cho người dùng.
             String jwt = jwtToken.generateToken((CustomUserDetails) authentication.getPrincipal());
-            Optional<UsersModel> user = usersRepository.findById(((CustomUserDetails) authentication.getPrincipal()).getId());
+            Optional<UsersModel> user = usersRepo.findById(((CustomUserDetails) authentication.getPrincipal()).getId());
             return ResponseEntity.ok(new SigninResponse(true, "success", jwt, user.get()));
         }catch (IllegalArgumentException ex){
             return ResponseEntity.ok(new SigninResponse(false, "Exception", null, null));
@@ -66,7 +63,7 @@ public class AuthApi {
     @PostMapping("/refreshtoken")
     public ResponseEntity<?> refreshToken(@Valid @RequestBody RefreshTokenRequest refreshTokenRequest){
         try{
-            UsersModel user = usersRepository.findByRefreshToken(refreshTokenRequest.getRefreshToken());
+            UsersModel user = usersRepo.findByRefreshToken(refreshTokenRequest.getRefreshToken());
             if(user != null){
                 String jwt = jwtToken.generateToken((CustomUserDetails) jwtUserService.loadUserByUsername(user.getUsername()));
                 return ResponseEntity.ok(new RefreshTokenResponse(true, "success", jwt));
@@ -75,6 +72,23 @@ public class AuthApi {
             }
         }catch (IllegalArgumentException ex){
             return ResponseEntity.ok(new RefreshTokenResponse(true, "Something wrongs", null));
+        }
+    }
+
+    @PostMapping("/changepassword")
+    @PreAuthorize("!isAnonymous()")
+    public ResponseEntity<?> changePassword(@Valid @RequestBody ChangePassRequest changePassRequest){
+        try{
+            UsersModel user = usersRepo.findByUsername(SecurityContextHolder.getContext().getAuthentication().getName());
+            if(passwordEncoder.matches(changePassRequest.getOldPassword(), user.getPassword())){
+                user.setPassword(passwordEncoder.encode(changePassRequest.getNewPassword()));
+                usersRepo.save(user);
+                return ResponseEntity.ok(new GeneralResponse(true, "success", null));
+            }else{
+                return ResponseEntity.ok(new GeneralResponse(false, "Old Password incorrect", null));
+            }
+        }catch (IllegalArgumentException ex){
+            return ResponseEntity.ok(new GeneralResponse(false, "Something wrongs", null));
         }
     }
 
@@ -87,7 +101,7 @@ public class AuthApi {
             if (loginRequest.getUsername() == null || loginRequest.getPassword() == null || loginRequest.getName() == null || loginRequest.getEmail() == null) {
                 return ResponseEntity.ok(new SignupResponse(false, "Not enough infomation", null, null));
             }
-            if(usersRepository.findByUsername(loginRequest.getUsername()) == null){
+            if(usersRepo.findByUsername(loginRequest.getUsername()) == null){
                 //signup
                 UsersModel user = new UsersModel();
                 user.setUsername(loginRequest.getUsername());
@@ -95,10 +109,7 @@ public class AuthApi {
                 user.setEmail(loginRequest.getEmail());
                 user.setName(loginRequest.getName());
                 user.setAvatar(defaultAvatar);
-                user.setRoles("ROLE_USER");
-                user.setActive(true);
-                user.setRefreshToken(Generators.randomBasedGenerator().generate().toString());
-                UsersModel userSave = usersRepository.save(user);
+                UsersModel userSave = usersRepo.save(user);
 
                 //signin
                 Authentication authentication = authenticationManager.authenticate(

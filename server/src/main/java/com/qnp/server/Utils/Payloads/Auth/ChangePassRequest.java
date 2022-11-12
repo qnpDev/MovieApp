@@ -7,7 +7,10 @@ import javax.validation.constraints.NotBlank;
 
 @Data
 @AllArgsConstructor
-public class RefreshTokenRequest {
+public class ChangePassRequest {
     @NotBlank
-    private String refreshToken;
+    private String oldPassword;
+
+    @NotBlank
+    private String newPassword;
 }

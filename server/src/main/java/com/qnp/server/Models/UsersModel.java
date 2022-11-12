@@ -1,15 +1,21 @@
 package com.qnp.server.Models;
 
+import com.fasterxml.uuid.Generators;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.beans.factory.annotation.Value;
 
 import javax.persistence.*;
 import java.util.Date;
+import java.util.Set;
 
 @Entity
 @Table(name = "users")
 @Data
+@NoArgsConstructor
 public class UsersModel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,16 +32,22 @@ public class UsersModel {
 
     private String avatar;
 
-    private String roles;
+    private String roles = "ROLE_USER";
 
-    private String refreshToken;
+    private String refreshToken = Generators.randomBasedGenerator().generate().toString();
 
     private Date vip;
 
-    @Column(columnDefinition="tinyint(1) default 1")
-    private boolean active;
+    private boolean active = true;
+
+    @OneToMany(mappedBy="users")
+    private Set<ReviewsModel> reviews;
 
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
     private Date createdAt;
+
+    @UpdateTimestamp
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date updatedAt;
 }
