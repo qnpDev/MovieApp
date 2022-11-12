@@ -32,7 +32,6 @@ public class ServerApplication implements CommandLineRunner {
             user.setEmail("admin@qui.name.vn");
             user.setAvatar("https://phunugioi.com/wp-content/uploads/2020/02/mau-background-dep.jpg");
             user.setRoles("ROLE_ADMIN");
-            user.setActive(true);
             user.setRefreshToken(Generators.randomBasedGenerator().generate().toString());
             user.setPassword(passwordEncoder.encode("123456"));
             userRepository.save(user);

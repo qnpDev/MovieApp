@@ -1,21 +1,21 @@
-package com.qnp.server.Utils.Payloads.Requests;
+package com.qnp.server.Utils.Payloads.Auth;
 
 import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
 
 @Data
-public class LoginRequest {
+public class SigninRequest {
     @NotBlank
     private String username;
 
     @NotBlank
     private String password;
 
-    public LoginRequest() {
+    public SigninRequest() {
     }
 
-    public LoginRequest(String username, String password) {
+    public SigninRequest(String username, String password) {
         this.username = username;
         this.password = password;
     }

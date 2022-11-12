@@ -1,5 +1,6 @@
 package com.qnp.server.Utils;
 
+import com.qnp.server.Utils.jwt.JwtForbidden;
 import com.qnp.server.Utils.jwt.JwtUserService;
 import com.qnp.server.Utils.jwt.JwtEntryPoint;
 import com.qnp.server.Utils.jwt.JwtFilter;
@@ -30,6 +31,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     private JwtEntryPoint jwtEntryPoint;
 
     @Autowired
+    private JwtForbidden jwtForbidden;
+
+    @Autowired
     private JwtFilter jwtFilter;
 
     @Bean(BeanIds.AUTHENTICATION_MANAGER)
@@ -58,12 +62,15 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 //                .cors() // Ngăn chặn request từ một domain khác
 //                .and()
                 .authorizeRequests()
-                    .antMatchers("/api/login").permitAll() // Cho phép tất cả mọi người truy cập vào địa chỉ này
-                    .antMatchers("/api/refreshtoken").permitAll()
+                    .antMatchers("/api/auth/**").permitAll() // Cho phép tất cả mọi người truy cập vào địa chỉ này
                     .antMatchers("/api/admin").hasRole("ADMIN")
                     .anyRequest().authenticated() // Tất cả các request khác đều cần phải xác thực mới được truy cập
                     .and()
-                .exceptionHandling().authenticationEntryPoint(jwtEntryPoint).and().sessionManagement()
+                .exceptionHandling()
+                    .authenticationEntryPoint(jwtEntryPoint)
+                    .accessDeniedHandler(jwtForbidden)
+                    .and()
+                .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 ;
 

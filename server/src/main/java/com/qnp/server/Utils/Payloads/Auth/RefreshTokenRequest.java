@@ -1,4 +1,4 @@
-package com.qnp.server.Utils.Payloads.Requests;
+package com.qnp.server.Utils.Payloads.Auth;
 
 import lombok.Data;
 
