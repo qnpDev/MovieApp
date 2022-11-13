@@ -1,16 +1,21 @@
 package com.qnp.server.Controllers;
 
 import com.fasterxml.uuid.Generators;
+import com.qnp.server.Models.ResetPasswordModel;
 import com.qnp.server.Models.UsersModel;
+import com.qnp.server.Repositories.ResetPasswordRepo;
 import com.qnp.server.Repositories.UsersRepo;
 import com.qnp.server.Utils.Payloads.Auth.*;
 import com.qnp.server.Utils.CustomUserDetails;
 import com.qnp.server.Utils.Payloads.GeneralResponse;
+import com.qnp.server.Utils.jwt.JwtRefreshToken;
 import com.qnp.server.Utils.jwt.JwtToken;
 import com.qnp.server.Utils.jwt.JwtUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -20,7 +25,10 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import javax.mail.MessagingException;
+import javax.mail.internet.MimeMessage;
 import javax.validation.Valid;
+import java.util.Date;
 import java.util.Optional;
 
 @RestController
@@ -39,7 +47,13 @@ public class AuthApi {
     private UsersRepo usersRepo;
 
     @Autowired
+    private ResetPasswordRepo resetPasswordRepo;
+
+    @Autowired
     PasswordEncoder passwordEncoder;
+
+    @Autowired
+    public JavaMailSender mailer;
 
     @PostMapping("/signin")
     public ResponseEntity<?> signin(@Valid @RequestBody SigninRequest loginRequest){
@@ -60,7 +74,7 @@ public class AuthApi {
         }
     }
 
-    @PostMapping("/refreshtoken")
+    @PostMapping("/refresh-token")
     public ResponseEntity<?> refreshToken(@Valid @RequestBody RefreshTokenRequest refreshTokenRequest){
         try{
             UsersModel user = usersRepo.findByRefreshToken(refreshTokenRequest.getRefreshToken());
@@ -75,17 +89,98 @@ public class AuthApi {
         }
     }
 
-    @PostMapping("/changepassword")
+    @PostMapping("/change-password")
     @PreAuthorize("!isAnonymous()")
     public ResponseEntity<?> changePassword(@Valid @RequestBody ChangePassRequest changePassRequest){
         try{
             UsersModel user = usersRepo.findByUsername(SecurityContextHolder.getContext().getAuthentication().getName());
             if(passwordEncoder.matches(changePassRequest.getOldPassword(), user.getPassword())){
                 user.setPassword(passwordEncoder.encode(changePassRequest.getNewPassword()));
+                user.setRefreshToken((new JwtRefreshToken()).generate());
                 usersRepo.save(user);
                 return ResponseEntity.ok(new GeneralResponse(true, "success", null));
             }else{
                 return ResponseEntity.ok(new GeneralResponse(false, "Old Password incorrect", null));
+            }
+        }catch (IllegalArgumentException ex){
+            return ResponseEntity.ok(new GeneralResponse(false, "Something wrongs", null));
+        }
+    }
+
+    @GetMapping("/get-info")
+    @PreAuthorize("!isAnonymous()")
+    public ResponseEntity<?> getInfo(){
+        try{
+            UsersModel user = usersRepo.findByUsername(SecurityContextHolder.getContext().getAuthentication().getName());
+            if(user != null){
+                return ResponseEntity.ok(new GeneralResponse(true, "success", user));
+            }else{
+                return ResponseEntity.ok(new GeneralResponse(false, "false", null));
+            }
+        }catch (IllegalArgumentException ex){
+            return ResponseEntity.ok(new GeneralResponse(false, "Something wrongs", null));
+        }
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<?> resetPassword(@Valid @RequestBody ResetPassRequest resetPassRequest){
+        try{
+            UsersModel user = usersRepo.findByUsername(resetPassRequest.getUsername());
+            if(user != null){
+                if(user.getEmail().equals(resetPassRequest.getEmail())){
+
+                    String resetToken = Generators.randomBasedGenerator().generate().toString();
+                    ResetPasswordModel resetPasswordModel = new ResetPasswordModel();
+                    resetPasswordModel.setUid(user.getId());
+                    resetPasswordModel.setToken(resetToken);
+                    resetPasswordRepo.save(resetPasswordModel);
+
+                    MimeMessage message = mailer.createMimeMessage();
+                    MimeMessageHelper helper = new MimeMessageHelper(message, true, "utf-8");
+
+                    String htmlMsg = "<center><h1>" + resetPassRequest.getPath() + "/" + resetToken + "</h1></center>";
+
+                    message.setContent(htmlMsg, "text/html");
+                    helper.setTo(resetPassRequest.getEmail());
+                    helper.setSubject("qnp Movie Reset Password");
+
+                    mailer.send(message);
+
+                    return ResponseEntity.ok(new GeneralResponse(true, "success", null));
+                }else{
+                    return ResponseEntity.ok(new GeneralResponse(false, "Incorrect email", null));
+                }
+            }else{
+                return ResponseEntity.ok(new GeneralResponse(false, "Not found Username", null));
+            }
+        }catch (IllegalArgumentException | MessagingException ex){
+            return ResponseEntity.ok(new GeneralResponse(false, "Something wrongs", null));
+        }
+    }
+
+    @PostMapping("/reset-verify")
+    public ResponseEntity<?> verifyPassword(@Valid @RequestBody ResetPassVerifyRequest request){
+        try{
+            ResetPasswordModel resetModel = resetPasswordRepo.findByToken(request.getToken());
+            if(resetModel!= null){
+                if(((new Date()).getTime() - resetModel.getCreatedAt().getTime()) < (10 * 60 * 1000)){
+                    Optional<UsersModel> user = usersRepo.findById(resetModel.getId());
+                    if(user != null){
+                        UsersModel userSave = user.get();
+                        userSave.setPassword(passwordEncoder.encode(request.getPassword()));
+                        userSave.setRefreshToken(((new JwtRefreshToken()).generate()));
+                        usersRepo.save(userSave);
+                        resetPasswordRepo.delete(resetModel);
+                        return ResponseEntity.ok(new GeneralResponse(true, "success", null));
+                    }else {
+                        return ResponseEntity.ok(new GeneralResponse(false, "Not Found User", null));
+                    }
+                }else{
+                    resetPasswordRepo.delete(resetModel);
+                    return ResponseEntity.ok(new GeneralResponse(false, "Token is out of time", null));
+                }
+            }else{
+                return ResponseEntity.ok(new GeneralResponse(false, "Not Found Token", null));
             }
         }catch (IllegalArgumentException ex){
             return ResponseEntity.ok(new GeneralResponse(false, "Something wrongs", null));

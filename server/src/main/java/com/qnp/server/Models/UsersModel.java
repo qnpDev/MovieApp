@@ -1,6 +1,7 @@
 package com.qnp.server.Models;
 
 import com.fasterxml.uuid.Generators;
+import com.qnp.server.Utils.jwt.JwtRefreshToken;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
@@ -34,7 +35,7 @@ public class UsersModel {
 
     private String roles = "ROLE_USER";
 
-    private String refreshToken = Generators.randomBasedGenerator().generate().toString();
+    private String refreshToken = (new JwtRefreshToken()).generate();
 
     private Date vip;
 
