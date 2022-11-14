@@ -63,6 +63,23 @@ public class UsersModel {
     }
     //end fix infinite loop
 
+    @OneToMany(mappedBy="users", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
+    private List<ChatModel> chat = new ArrayList<>();
+
+    // fix infinite loop
+    public ChatModel getChat() {
+        return null;
+    }
+
+    public List<ChatModel> chatCustomGet() {
+        return chat;
+    }
+
+    public int getChatCount() {
+        return chat.size();
+    }
+    //end fix infinite loop
+
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
     private Date createdAt;
