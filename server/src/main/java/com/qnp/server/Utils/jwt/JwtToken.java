@@ -13,10 +13,13 @@ import java.util.function.Function;
 @Slf4j
 public class JwtToken{
 
-    public static final long  tokenTime = 60 * 5;
+//    public static final long  tokenTime = 60 * 5;
 
-    @Value("${jwt.secret.token}")
+    @Value("${jwt.token.secret}")
     private String secret;
+
+    @Value("${jwt.token.time}")
+    private Long tokenTime;
 
     // Tạo ra jwt từ thông tin user
     public String generateToken(CustomUserDetails userDetails) {

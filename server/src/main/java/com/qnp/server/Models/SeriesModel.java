@@ -1,14 +1,14 @@
 package com.qnp.server.Models;
 
+import com.fasterxml.jackson.annotation.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import javax.annotation.Generated;
 import javax.persistence.*;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 @Entity
 @Table(name = "series")
@@ -23,16 +23,30 @@ public class SeriesModel {
 
     private String type;
 
-    @ManyToMany(cascade = { CascadeType.ALL })
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     @JoinTable(
             name = "series_categories",
             joinColumns = { @JoinColumn(name = "series_id") },
             inverseJoinColumns = { @JoinColumn(name = "categories_id") }
     )
-    Set<CategoriesModel> categories = new HashSet<>();
+    List<CategoriesModel> categories = new ArrayList<>();
 
-    @OneToMany(mappedBy = "series")
-    private Set<MoviesModel> movies = new HashSet<>();
+    @OneToMany(mappedBy = "series", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
+    private List<MoviesModel> movies = new ArrayList<>();
+
+    // fix infinite loop
+    public MoviesModel getMovies() {
+        return null;
+    }
+
+    public List<MoviesModel> moviesCustomGet() {
+        return movies;
+    }
+
+    public int getMoviesCount() {
+        return movies.size();
+    }
+    //end fix infinite loop
 
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)

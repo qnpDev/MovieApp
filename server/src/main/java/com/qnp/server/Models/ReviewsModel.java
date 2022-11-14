@@ -1,5 +1,6 @@
 package com.qnp.server.Models;
 
+import com.fasterxml.jackson.annotation.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
@@ -17,9 +18,23 @@ public class ReviewsModel {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="movies_id", nullable=false)
     private MoviesModel movies;
+
+    // fix infinite loop
+    public MoviesModel getMovies() {
+        return null;
+    }
+
+    public Long getMoviesId(){
+        return movies.getId();
+    }
+
+    public MoviesModel moviesCustomGet() {
+        return movies;
+    }
+    //end fix infinite loop
 
     @ManyToOne
     @JoinColumn(name="user_id", nullable=false)

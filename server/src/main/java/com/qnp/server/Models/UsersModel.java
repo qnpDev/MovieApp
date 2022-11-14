@@ -1,5 +1,8 @@
 package com.qnp.server.Models;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.fasterxml.uuid.Generators;
 import com.qnp.server.Utils.jwt.JwtRefreshToken;
 import lombok.Data;
@@ -10,7 +13,9 @@ import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.beans.factory.annotation.Value;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -33,7 +38,7 @@ public class UsersModel {
 
     private String avatar;
 
-    private String roles = "ROLE_USER";
+    private String roles;
 
     private String refreshToken = (new JwtRefreshToken()).generate();
 
@@ -41,8 +46,22 @@ public class UsersModel {
 
     private boolean active = true;
 
-    @OneToMany(mappedBy="users")
-    private Set<ReviewsModel> reviews;
+    @OneToMany(mappedBy="users", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
+    private List<ReviewsModel> reviews = new ArrayList<>();
+
+    // fix infinite loop
+    public MoviesModel getReviews() {
+        return null;
+    }
+
+    public List<ReviewsModel> reviewsCustomGet() {
+        return reviews;
+    }
+
+    public int getReviewsCount() {
+        return reviews.size();
+    }
+    //end fix infinite loop
 
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)

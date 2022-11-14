@@ -6,9 +6,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 @Entity
 @Table(name = "movies")
@@ -33,24 +31,27 @@ public class MoviesModel {
 
     private String year;
 
+    private boolean active = true;
+
     private int limitAge;
 
-    private boolean isSeries;
+    private Long views = Long.parseLong("0");
 
     @ManyToOne
     @JoinColumn(name="series_id")
     private SeriesModel series;
 
-    @ManyToMany(cascade = { CascadeType.ALL })
+//    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
+    @ManyToMany
     @JoinTable(
             name = "movies_categories",
             joinColumns = { @JoinColumn(name = "movies_id") },
             inverseJoinColumns = { @JoinColumn(name = "categories_id") }
     )
-    Set<CategoriesModel> categories = new HashSet<>();
+    List<CategoriesModel> categories = new ArrayList<>();
 
-    @OneToMany(mappedBy="movies")
-    private Set<ReviewsModel> reviews = new HashSet<>();
+    @OneToMany(mappedBy="movies", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
+    private List<ReviewsModel> reviews = new ArrayList<>();
 
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)

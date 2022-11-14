@@ -6,9 +6,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 @Entity
 @Table(name = "categories")
@@ -22,10 +20,36 @@ public class CategoriesModel {
     private String name;
 
     @ManyToMany(mappedBy = "categories")
-    private Set<SeriesModel> series = new HashSet<>();
+    private List<SeriesModel> series = new ArrayList<>();
 
     @ManyToMany(mappedBy = "categories")
-    private Set<MoviesModel> movies = new HashSet<>();
+    private List<MoviesModel> movies = new ArrayList<>();
+
+    // fix infinite loop
+    public SeriesModel getSeries() {
+        return null;
+    }
+
+    public List<SeriesModel> seriesCustomGet(){
+        return series;
+    }
+
+    public int getSeriesCount(){
+        return series.size();
+    }
+
+    public MoviesModel getMovies() {
+        return null;
+    }
+
+    public List<MoviesModel> moviesCustomGet() {
+        return movies;
+    }
+
+    public int getMoviesCount() {
+        return movies.size();
+    }
+    //end fix infinite loop
 
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)

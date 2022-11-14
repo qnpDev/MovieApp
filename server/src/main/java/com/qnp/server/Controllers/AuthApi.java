@@ -13,6 +13,7 @@ import com.qnp.server.Utils.jwt.JwtToken;
 import com.qnp.server.Utils.jwt.JwtUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -27,6 +28,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.util.Date;
 import java.util.Optional;
@@ -67,10 +69,11 @@ public class AuthApi {
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
             String jwt = jwtToken.generateToken((CustomUserDetails) authentication.getPrincipal());
-            Optional<UsersModel> user = usersRepo.findById(((CustomUserDetails) authentication.getPrincipal()).getId());
-            return ResponseEntity.ok(new SigninResponse(true, "success", jwt, user.get()));
-        }catch (IllegalArgumentException ex){
-            return ResponseEntity.ok(new SigninResponse(false, "Exception", null, null));
+            UsersModel user = usersRepo.findById(((CustomUserDetails) authentication.getPrincipal()).getId()).get();
+            user.setPassword(null);
+            return ResponseEntity.ok(new SigninResponse(jwt, user.getRefreshToken(), user));
+        }catch (Exception ex){
+            return ResponseEntity.status(HttpServletResponse.SC_BAD_REQUEST).body(new GeneralResponse(false, ex.getMessage(), null));
         }
     }
 
@@ -82,10 +85,10 @@ public class AuthApi {
                 String jwt = jwtToken.generateToken((CustomUserDetails) jwtUserService.loadUserByUsername(user.getUsername()));
                 return ResponseEntity.ok(new RefreshTokenResponse(true, "success", jwt));
             }else{
-                return ResponseEntity.ok(new RefreshTokenResponse(false, "Not found refreshToken", null));
+                return ResponseEntity.status(HttpServletResponse.SC_NOT_FOUND).body(new GeneralResponse(false, "Not found Token", null));
             }
-        }catch (IllegalArgumentException ex){
-            return ResponseEntity.ok(new RefreshTokenResponse(true, "Something wrongs", null));
+        }catch (Exception ex){
+            return ResponseEntity.status(HttpServletResponse.SC_BAD_REQUEST).body(new GeneralResponse(false, ex.getMessage(), null));
         }
     }
 
@@ -100,10 +103,10 @@ public class AuthApi {
                 usersRepo.save(user);
                 return ResponseEntity.ok(new GeneralResponse(true, "success", null));
             }else{
-                return ResponseEntity.ok(new GeneralResponse(false, "Old Password incorrect", null));
+                return ResponseEntity.status(HttpServletResponse.SC_BAD_REQUEST).body(new GeneralResponse(false, "Old Password incorrect", null));
             }
-        }catch (IllegalArgumentException ex){
-            return ResponseEntity.ok(new GeneralResponse(false, "Something wrongs", null));
+        }catch (Exception ex){
+            return ResponseEntity.status(HttpServletResponse.SC_BAD_REQUEST).body(new GeneralResponse(false, ex.getMessage(), null));
         }
     }
 
@@ -113,12 +116,12 @@ public class AuthApi {
         try{
             UsersModel user = usersRepo.findByUsername(SecurityContextHolder.getContext().getAuthentication().getName());
             if(user != null){
-                return ResponseEntity.ok(new GeneralResponse(true, "success", user));
+                return ResponseEntity.ok(user);
             }else{
-                return ResponseEntity.ok(new GeneralResponse(false, "false", null));
+                return ResponseEntity.status(HttpServletResponse.SC_NOT_FOUND).body(new GeneralResponse(false, "Not found", null));
             }
-        }catch (IllegalArgumentException ex){
-            return ResponseEntity.ok(new GeneralResponse(false, "Something wrongs", null));
+        }catch (Exception ex){
+            return ResponseEntity.status(HttpServletResponse.SC_BAD_REQUEST).body(new GeneralResponse(false, ex.getMessage(), null));
         }
     }
 
@@ -148,13 +151,13 @@ public class AuthApi {
 
                     return ResponseEntity.ok(new GeneralResponse(true, "success", null));
                 }else{
-                    return ResponseEntity.ok(new GeneralResponse(false, "Incorrect email", null));
+                    return ResponseEntity.status(HttpServletResponse.SC_NOT_FOUND).body(new GeneralResponse(false, "Incorrect email", null));
                 }
             }else{
-                return ResponseEntity.ok(new GeneralResponse(false, "Not found Username", null));
+                return ResponseEntity.status(HttpServletResponse.SC_BAD_REQUEST).body(new GeneralResponse(false, "Incorrect username", null));
             }
-        }catch (IllegalArgumentException | MessagingException ex){
-            return ResponseEntity.ok(new GeneralResponse(false, "Something wrongs", null));
+        }catch (Exception ex){
+            return ResponseEntity.status(HttpServletResponse.SC_BAD_REQUEST).body(new GeneralResponse(false, ex.getMessage(), null));
         }
     }
 
@@ -165,7 +168,7 @@ public class AuthApi {
             if(resetModel!= null){
                 if(((new Date()).getTime() - resetModel.getCreatedAt().getTime()) < (10 * 60 * 1000)){
                     Optional<UsersModel> user = usersRepo.findById(resetModel.getId());
-                    if(user != null){
+                    if(user.isPresent()){
                         UsersModel userSave = user.get();
                         userSave.setPassword(passwordEncoder.encode(request.getPassword()));
                         userSave.setRefreshToken(((new JwtRefreshToken()).generate()));
@@ -173,17 +176,17 @@ public class AuthApi {
                         resetPasswordRepo.delete(resetModel);
                         return ResponseEntity.ok(new GeneralResponse(true, "success", null));
                     }else {
-                        return ResponseEntity.ok(new GeneralResponse(false, "Not Found User", null));
+                        return ResponseEntity.status(HttpServletResponse.SC_NOT_FOUND).body(new GeneralResponse(false, "Not Found User", null));
                     }
                 }else{
                     resetPasswordRepo.delete(resetModel);
-                    return ResponseEntity.ok(new GeneralResponse(false, "Token is out of time", null));
+                    return ResponseEntity.status(HttpServletResponse.SC_BAD_REQUEST).body(new GeneralResponse(false, "Token is out of time", null));
                 }
             }else{
-                return ResponseEntity.ok(new GeneralResponse(false, "Not Found Token", null));
+                return ResponseEntity.status(HttpServletResponse.SC_NOT_FOUND).body(new GeneralResponse(false, "Not Found Token", null));
             }
-        }catch (IllegalArgumentException ex){
-            return ResponseEntity.ok(new GeneralResponse(false, "Something wrongs", null));
+        }catch (Exception ex){
+            return ResponseEntity.status(HttpServletResponse.SC_BAD_REQUEST).body(new GeneralResponse(false, ex.getMessage(), null));
         }
     }
 
@@ -217,10 +220,10 @@ public class AuthApi {
                 String jwt = jwtToken.generateToken((CustomUserDetails) authentication.getPrincipal());
                 return ResponseEntity.ok(new SignupResponse(true, "success", jwt, userSave));
             }else{
-                return ResponseEntity.ok(new SignupResponse(false, "Username already exists", null, null));
+                return ResponseEntity.status(HttpServletResponse.SC_BAD_REQUEST).body(new SignupResponse(false, "Username already exists", null, null));
             }
-        }catch (IllegalArgumentException ex){
-            return ResponseEntity.ok(new SignupResponse(false, "Something wrongs", null, null));
+        }catch (Exception ex){
+            return ResponseEntity.status(HttpServletResponse.SC_BAD_REQUEST).body(new GeneralResponse(false, ex.getMessage(), null));
         }
     }
 
