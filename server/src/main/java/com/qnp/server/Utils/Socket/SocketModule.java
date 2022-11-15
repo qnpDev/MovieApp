@@ -5,7 +5,9 @@ import com.corundumstudio.socketio.SocketIOServer;
 import com.corundumstudio.socketio.listener.ConnectListener;
 import com.corundumstudio.socketio.listener.DataListener;
 import com.corundumstudio.socketio.listener.DisconnectListener;
+import com.qnp.server.Models.ChatModel;
 import com.qnp.server.Models.UsersModel;
+import com.qnp.server.Repositories.ChatRepo;
 import com.qnp.server.Repositories.UsersRepo;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +20,9 @@ public class SocketModule {
     @Autowired
     private UsersRepo usersRepo;
 
+    @Autowired
+    private ChatRepo chatRepo;
+
     public SocketModule(SocketIOServer server) {
         this.server = server;
         this.server.addConnectListener(onConnected());
@@ -28,14 +33,19 @@ public class SocketModule {
 
     private DataListener<SocketMessage> onChatReceived() {
         return (client, data, ackSender) -> {
-            System.out.println(data.toString());
+//            System.out.println(data.toString());
             JSONObject jsonObject = new JSONObject(data);
             String message = jsonObject.getString("message");
-            System.out.println("message: " + message);
-            System.out.println("id: " + jsonObject.getLong("id"));
-            UsersModel user = usersRepo.findById(jsonObject.getLong("id")).get();
+            UsersModel user = usersRepo.findById(jsonObject.getLong("uid")).get();
+            ChatModel chat = new ChatModel();
+            chat.setMessage(message);
+            chat.setUsers(user);
+            chat = chatRepo.save(chat);
+            chat.getUsers().setPassword(null);
+            chat.getUsers().setRefreshToken(null);
+
             for (SocketIOClient clientByRoom : server.getBroadcastOperations().getClients()) {
-                clientByRoom.sendEvent("get_message", new SocketMessage(message, jsonObject.getLong("id")));
+                clientByRoom.sendEvent("get_message", chat);
             }
         };
     }
@@ -44,14 +54,14 @@ public class SocketModule {
         return (client) -> {
 //            String room = client.getHandshakeData().getSingleUrlParam("room");
 //            client.joinRoom(room);
-            System.out.println("Socket ID[{}]  Connected to socket " + client.getSessionId().toString());
+//            System.out.println("Socket ID[{}]  Connected to socket " + client.getSessionId().toString());
         };
 
     }
 
     private DisconnectListener onDisconnected() {
         return client -> {
-            System.out.println("Client[{}] - Disconnected from socket " + client.getSessionId().toString());
+//            System.out.println("Client[{}] - Disconnected from socket " + client.getSessionId().toString());
         };
     }
 }

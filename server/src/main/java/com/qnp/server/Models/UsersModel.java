@@ -13,10 +13,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.beans.factory.annotation.Value;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Entity
 @Table(name = "users")
@@ -46,15 +43,15 @@ public class UsersModel {
 
     private boolean active = true;
 
-    @OneToMany(mappedBy="users", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
-    private List<ReviewsModel> reviews = new ArrayList<>();
+    @OneToMany(mappedBy="users", fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
+    private Set<ReviewsModel> reviews = new HashSet<>();
 
     // fix infinite loop
     public MoviesModel getReviews() {
         return null;
     }
 
-    public List<ReviewsModel> reviewsCustomGet() {
+    public Set<ReviewsModel> reviewsCustomGet() {
         return reviews;
     }
 
@@ -63,21 +60,21 @@ public class UsersModel {
     }
     //end fix infinite loop
 
-    @OneToMany(mappedBy="users", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
-    private List<ChatModel> chat = new ArrayList<>();
+    @OneToMany(mappedBy="users", fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
+    private Set<ChatModel> chat = new HashSet<>();
 
     // fix infinite loop
     public ChatModel getChat() {
         return null;
     }
 
-    public List<ChatModel> chatCustomGet() {
+    public Set<ChatModel> chatCustomGet() {
         return chat;
     }
 
-    public int getChatCount() {
-        return chat.size();
-    }
+//    public int getChatCount() {
+//        return chat.size();
+//    }
     //end fix infinite loop
 
     @CreationTimestamp

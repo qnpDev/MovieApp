@@ -7,12 +7,12 @@ import lombok.Data;
 public class SocketMessage {
     private String message;
 
-    private Long id;
+    private Long uid;
 
     public SocketMessage(){}
 
-    public SocketMessage(String message, Long id){
+    public SocketMessage(String message, Long uid){
         this.message = message;
-        this.id = id;
+        this.uid = uid;
     }
 }
