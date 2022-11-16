@@ -21,7 +21,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/admin/users")
-public class UsersApi {
+public class UsersAdminApi {
 
     @Autowired
     private UsersRepo usersRepo;

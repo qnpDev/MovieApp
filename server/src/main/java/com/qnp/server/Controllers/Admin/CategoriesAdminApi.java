@@ -14,7 +14,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/admin/categories")
-public class CategoriesApi {
+public class CategoriesAdminApi {
 
     @Autowired
     CategoriesRepo  categoriesRepo;

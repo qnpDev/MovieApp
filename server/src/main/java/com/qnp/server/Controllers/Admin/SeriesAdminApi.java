@@ -21,7 +21,7 @@ import java.util.Set;
 
 @RestController
 @RequestMapping("/api/admin/series")
-public class SeriesApi {
+public class SeriesAdminApi {
 
     @Autowired
     private SeriesRepo seriesRepo;
