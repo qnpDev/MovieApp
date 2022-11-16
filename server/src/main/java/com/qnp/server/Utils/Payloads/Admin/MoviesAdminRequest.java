@@ -36,8 +36,9 @@ public class MoviesAdminRequest {
 
     private boolean active = true;
 
+    private boolean vip = false;
+
     List<Long> categories = null;
 
     private Long series = null;
-
 }

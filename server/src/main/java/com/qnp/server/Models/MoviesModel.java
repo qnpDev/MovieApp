@@ -33,6 +33,8 @@ public class MoviesModel {
 
     private boolean active = true;
 
+    private boolean vip = false;
+
     private int limitAge;
 
     private Long views = Long.parseLong("0");

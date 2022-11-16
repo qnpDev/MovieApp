@@ -55,6 +55,7 @@ public class MoviesAdminApi {
             data.setYear(request.getYear());
             data.setLimitAge(request.getLimitAge());
             data.setActive(request.isActive());
+            data.setVip(request.isVip());
             data.setSeries(seriesRepo.findById(request.getSeries()).get());
             List<CategoriesModel> categories = (List<CategoriesModel>) categoriesRepo.findAllById(request.getCategories());
             data.getCategories().addAll(categories);
@@ -80,6 +81,7 @@ public class MoviesAdminApi {
                 dataSave.setYear(request.getYear());
                 dataSave.setLimitAge(request.getLimitAge());
                 dataSave.setActive(request.isActive());
+                dataSave.setVip(request.isVip());
                 dataSave.setSeries(seriesRepo.findById(request.getSeries()).get());
                 if(request.getCategories().size() > 0){
                     List<CategoriesModel> categories = (List<CategoriesModel>) categoriesRepo.findAllById(request.getCategories());
