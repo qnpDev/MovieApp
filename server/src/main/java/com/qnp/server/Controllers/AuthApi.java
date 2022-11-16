@@ -92,6 +92,19 @@ public class AuthApi {
         }
     }
 
+    @PostMapping("/reset-refresh-token")
+    @PreAuthorize("!isAnonymous()")
+    public ResponseEntity<?> resetRefreshToken(){
+        try{
+            UsersModel user = usersRepo.findByUsername(SecurityContextHolder.getContext().getAuthentication().getName());
+            user.setRefreshToken((new JwtRefreshToken()).generate());
+            usersRepo.save(user);
+            return ResponseEntity.ok(new GeneralResponse(true, "success", null));
+        }catch (Exception ex){
+            return ResponseEntity.status(HttpServletResponse.SC_BAD_REQUEST).body(new GeneralResponse(false, ex.getMessage(), null));
+        }
+    }
+
     @PostMapping("/change-password")
     @PreAuthorize("!isAnonymous()")
     public ResponseEntity<?> changePassword(@Valid @RequestBody ChangePassRequest changePassRequest){
