@@ -71,9 +71,22 @@ public class UsersModel {
     public Set<ChatModel> chatCustomGet() {
         return chat;
     }
+    //end fix infinite loop
 
-//    public int getChatCount() {
-//        return chat.size();
+    @OneToMany(mappedBy="users", fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
+    private Set<TransactionModel> transaction = new HashSet<>();
+
+    // fix infinite loop
+    public TransactionModel getTransaction() {
+        return null;
+    }
+
+    public Set<ReviewsModel> transactionCustomGet() {
+        return reviews;
+    }
+
+//    public int getTransactionCount() {
+//        return reviews.size();
 //    }
     //end fix infinite loop
 
