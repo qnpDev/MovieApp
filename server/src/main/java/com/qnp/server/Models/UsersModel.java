@@ -1,16 +1,10 @@
 package com.qnp.server.Models;
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-import com.fasterxml.uuid.Generators;
 import com.qnp.server.Utils.jwt.JwtRefreshToken;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.UpdateTimestamp;
-import org.springframework.beans.factory.annotation.Value;
 
 import javax.persistence.*;
 import java.util.*;
@@ -74,15 +68,15 @@ public class UsersModel {
     //end fix infinite loop
 
     @OneToMany(mappedBy="users", fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
-    private Set<TransactionModel> transaction = new HashSet<>();
+    private Set<BillingModel> billing = new HashSet<>();
 
     // fix infinite loop
-    public TransactionModel getTransaction() {
+    public BillingModel getBilling() {
         return null;
     }
 
-    public Set<ReviewsModel> transactionCustomGet() {
-        return reviews;
+    public Set<BillingModel> billingCustomGet() {
+        return billing;
     }
 
 //    public int getTransactionCount() {

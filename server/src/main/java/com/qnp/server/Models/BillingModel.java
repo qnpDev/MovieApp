@@ -10,10 +10,10 @@ import javax.persistence.*;
 import java.util.Date;
 
 @Entity
-@Table(name = "transaction")
+@Table(name = "billing")
 @Data
 @NoArgsConstructor
-public class TransactionModel {
+public class BillingModel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -34,6 +34,10 @@ public class TransactionModel {
     @ManyToOne
     @JoinColumn(name="user_id", nullable=false)
     private UsersModel users;
+
+    @ManyToOne
+    @JoinColumn(name="plan_id", nullable=false)
+    private PlanModel plan;
 
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
