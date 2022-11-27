@@ -16,38 +16,38 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/api/billing")
 public class BillingApi {
-//    @Autowired
-//    private BillingRepo billingRepo;
-//
-//    @Autowired
-//    private UsersRepo usersRepo;
-//
-//    @GetMapping
-//    public ResponseEntity<?> get(){
-//        return ResponseEntity.ok(billingRepo.findAll());
-//    }
-//
-//    @GetMapping()
-//    public ResponseEntity<?> getByUser(){
-//        UsersModel user = usersRepo.findByUsername(SecurityContextHolder.getContext().getAuthentication().getName());
-//        List<BillingModel> data = billingRepo.findByUsers(user);
-//        return ResponseEntity.ok(data);
-//    }
-//
-//    @GetMapping("{id}")
-//    public ResponseEntity<?> getById(@PathVariable Long id){
-//        Optional<BillingModel> data = billingRepo.findById(id);
-//        if(data.isPresent()){
-//            UsersModel user = usersRepo.findByUsername(SecurityContextHolder.getContext().getAuthentication().getName());
-//            BillingModel trans = data.get();
-//            if(trans.getUsers().getId() == user.getId()){
-//                return ResponseEntity.ok(data.get());
-//            }else{
-//                ResponseEntity.status(HttpServletResponse.SC_FORBIDDEN).body(new GeneralResponse(false, "Not match user get", null));
-//            }
-//        }
-//        return ResponseEntity.status(HttpServletResponse.SC_NOT_FOUND).body(new GeneralResponse(false, "Not found", null));
-//    }
+    @Autowired
+    private BillingRepo billingRepo;
+
+    @Autowired
+    private UsersRepo usersRepo;
+
+    @GetMapping
+    public ResponseEntity<?> get(){
+        return ResponseEntity.ok(billingRepo.findAll());
+    }
+
+    @GetMapping("user")
+    public ResponseEntity<?> getByUser(){
+        UsersModel user = usersRepo.findByUsername(SecurityContextHolder.getContext().getAuthentication().getName());
+        List<BillingModel> data = billingRepo.findByUsers(user);
+        return ResponseEntity.ok(data);
+    }
+
+    @GetMapping("{id}")
+    public ResponseEntity<?> getById(@PathVariable Long id){
+        Optional<BillingModel> data = billingRepo.findById(id);
+        if(data.isPresent()){
+            UsersModel user = usersRepo.findByUsername(SecurityContextHolder.getContext().getAuthentication().getName());
+            BillingModel trans = data.get();
+            if(trans.getUsers().getId() == user.getId()){
+                return ResponseEntity.ok(data.get());
+            }else{
+                ResponseEntity.status(HttpServletResponse.SC_FORBIDDEN).body(new GeneralResponse(false, "Not match user get", null));
+            }
+        }
+        return ResponseEntity.status(HttpServletResponse.SC_NOT_FOUND).body(new GeneralResponse(false, "Not found", null));
+    }
 
 //    @PostMapping
 //    public ResponseEntity<?> create(@Valid @RequestBody MoviesAdminRequest request){

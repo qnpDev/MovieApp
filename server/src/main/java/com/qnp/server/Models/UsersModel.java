@@ -29,7 +29,7 @@ public class UsersModel {
 
     private String avatar;
 
-    private String roles;
+    private String roles = "ROLE_USER";
 
     private String refreshToken = (new JwtRefreshToken()).generate();
 
