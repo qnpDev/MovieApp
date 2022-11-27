@@ -61,7 +61,7 @@ public class UsersAdminApi {
                         roles += role + ",";
                     dataSave.setRoles(roles);
                 }else if(dataSave.getRoles() != null){
-                    dataSave.setRoles(null);
+                    dataSave.setRoles("ROLE_USER");
                 }
                 if(request.getVip() != null){
                     dataSave.setVip(Date.from(Instant.parse(request.getVip())));

@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
+import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -91,8 +93,23 @@ public class BillingApi {
             if(data.isPresent()){
                 BillingModel dataSave = data.get();
                 dataSave.setConfirmed(true);
-                socketModule.sendEvt("billing", dataSave);
+                UsersModel user = dataSave.getUsers();
+
+                Date today = new Date();
+                if(user.getVip() != null && user.getVip().after(today)){
+                    Date dateSave = user.getVip();
+                    LocalDateTime.from(dateSave.toInstant()).plusDays(dataSave.getPlan().getDays());
+                    user.setVip(dateSave);
+//                    usersRepo.save(user);
+                }else{
+                    Date dateSave = today;
+                    LocalDateTime.from(dateSave.toInstant()).plusDays(dataSave.getPlan().getDays());
+                    user.setVip(dateSave);
+//                    usersRepo.save(user);
+                }
+                dataSave.setUsers(user);
                 dataSave = billingRepo.save(dataSave);
+                socketModule.sendEvt("billing", dataSave);
                 return ResponseEntity.ok(dataSave);
             }else{
                 return ResponseEntity.status(HttpServletResponse.SC_NOT_FOUND).body(new GeneralResponse(false, "not found", null));
