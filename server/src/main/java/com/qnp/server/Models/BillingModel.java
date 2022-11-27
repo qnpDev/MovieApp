@@ -18,8 +18,6 @@ public class BillingModel {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String name;
-
     private double amount;
 
     private boolean confirmed = false;

@@ -50,6 +50,12 @@ public class SocketModule {
         };
     }
 
+    public void sendEvt(String eventName, Object message) {
+        for (SocketIOClient clientByRoom : server.getBroadcastOperations().getClients()) {
+            clientByRoom.sendEvent(eventName, message);
+        }
+    }
+
     private ConnectListener onConnected() {
         return (client) -> {
 //            String room = client.getHandshakeData().getSingleUrlParam("room");

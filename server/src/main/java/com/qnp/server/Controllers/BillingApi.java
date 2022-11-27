@@ -1,15 +1,21 @@
 package com.qnp.server.Controllers;
 
+import com.corundumstudio.socketio.SocketIOClient;
+import com.corundumstudio.socketio.SocketIOServer;
 import com.qnp.server.Models.*;
 import com.qnp.server.Repositories.BillingRepo;
+import com.qnp.server.Repositories.PlanRepo;
 import com.qnp.server.Repositories.UsersRepo;
 import com.qnp.server.Utils.Payloads.GeneralResponse;
+import com.qnp.server.Utils.Payloads.Home.BillingRequest;
+import com.qnp.server.Utils.Socket.SocketModule;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
 import java.util.List;
 import java.util.Optional;
 
@@ -21,6 +27,12 @@ public class BillingApi {
 
     @Autowired
     private UsersRepo usersRepo;
+
+    @Autowired
+    private PlanRepo planRepo;
+
+    @Autowired
+    private SocketModule socketModule;
 
     @GetMapping
     public ResponseEntity<?> get(){
@@ -49,28 +61,45 @@ public class BillingApi {
         return ResponseEntity.status(HttpServletResponse.SC_NOT_FOUND).body(new GeneralResponse(false, "Not found", null));
     }
 
-//    @PostMapping
-//    public ResponseEntity<?> create(@Valid @RequestBody MoviesAdminRequest request){
-//        try{
-//            MoviesModel data = new MoviesModel();
-//            data.setTitle(request.getTitle());
-//            data.setDescription(request.getDescription());
-//            data.setImgTitle(request.getImgTitle());
-//            data.setImgSm(request.getImgSm());
-//            data.setTrailer(request.getTrailer());
-//            data.setVideo(request.getVideo());
-//            data.setYear(request.getYear());
-//            data.setLimitAge(request.getLimitAge());
-//            data.setActive(request.isActive());
-//            data.setVip(request.isVip());
-//            data.setSeries(seriesRepo.findById(request.getSeries()).get());
-//            List<CategoriesModel> categories = (List<CategoriesModel>) categoriesRepo.findAllById(request.getCategories());
-//            data.getCategories().addAll(categories);
-//            MoviesModel dataSave = moviesRepo.save(data);
-//            return ResponseEntity.ok(dataSave);
-//        }catch (Exception e){
-//            return ResponseEntity.status(HttpServletResponse.SC_BAD_REQUEST).body(new GeneralResponse(false, e.getMessage(), null));
-//        }
-//    }
+    @PostMapping
+    public ResponseEntity<?> create(@Valid @RequestBody BillingRequest request){
+        try{
+            BillingModel data = new BillingModel();
+            UsersModel user = usersRepo.findByUsername(SecurityContextHolder.getContext().getAuthentication().getName());
+            Optional<PlanModel> getPlan = planRepo.findById(request.getPlanId());
+            if(getPlan.isPresent()){
+                PlanModel plan = getPlan.get();
+                data.setAmount(request.getAmount());
+                data.setPayment(request.getPayment());
+                data.setDescription(request.getDescription());
+                data.setPlan(plan);
+                data.setUsers(user);
+                data = billingRepo.save(data);
+                return ResponseEntity.ok(data);
+            }else{
+                return ResponseEntity.status(HttpServletResponse.SC_BAD_REQUEST).body(new GeneralResponse(false, "not found plan", null));
+            }
+        }catch (Exception e){
+            return ResponseEntity.status(HttpServletResponse.SC_BAD_REQUEST).body(new GeneralResponse(false, e.getMessage(), null));
+        }
+    }
+
+    @PutMapping("{id}")
+    public ResponseEntity<?> update(@PathVariable Long id){
+        try{
+            Optional<BillingModel> data = billingRepo.findById(id);
+            if(data.isPresent()){
+                BillingModel dataSave = data.get();
+                dataSave.setConfirmed(true);
+                socketModule.sendEvt("billing", dataSave);
+                dataSave = billingRepo.save(dataSave);
+                return ResponseEntity.ok(dataSave);
+            }else{
+                return ResponseEntity.status(HttpServletResponse.SC_NOT_FOUND).body(new GeneralResponse(false, "not found", null));
+            }
+        }catch (Exception ex){
+            return ResponseEntity.status(HttpServletResponse.SC_BAD_REQUEST).body(new GeneralResponse(false, ex.getMessage(), null));
+        }
+    }
 
 }

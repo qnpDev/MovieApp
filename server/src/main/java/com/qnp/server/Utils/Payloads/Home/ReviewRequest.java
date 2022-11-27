@@ -8,15 +8,14 @@ import javax.validation.constraints.NotNull;
 
 @Data
 @AllArgsConstructor
-public class BillingRequest {
+public class ReviewRequest {
     @NotBlank
-    double amount;
-
-    @NotBlank
-    String payment;
-
-    String description;
+    private String content;
 
     @NotNull
-    Long planId;
+    private float rating;
+
+    @NotNull
+    private Long movieId;
+
 }
