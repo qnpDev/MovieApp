@@ -9,7 +9,7 @@ import javax.validation.constraints.NotNull;
 @Data
 @AllArgsConstructor
 public class BillingRequest {
-    @NotBlank
+    @NotNull
     double amount;
 
     @NotBlank
