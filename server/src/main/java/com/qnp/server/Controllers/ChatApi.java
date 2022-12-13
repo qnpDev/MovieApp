@@ -4,6 +4,7 @@ import com.qnp.server.Models.CategoriesModel;
 import com.qnp.server.Models.ChatModel;
 import com.qnp.server.Repositories.ChatRepo;
 import com.qnp.server.Utils.Payloads.GeneralResponse;
+import com.qnp.server.Utils.Socket.SocketModule;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
@@ -18,6 +19,9 @@ public class ChatApi {
 
     @Autowired
     private ChatRepo chatRepo;
+
+    @Autowired
+    private SocketModule socketModule;
 
     @GetMapping
     public ResponseEntity<?> get(){
@@ -38,6 +42,7 @@ public class ChatApi {
     public ResponseEntity<?> clear(){
         try {
             chatRepo.deleteAll();
+            socketModule.sendEvt("clear_chat", "clear_chat");
             return ResponseEntity.ok(new GeneralResponse(true, "success", null));
         }catch (Exception ex){
             return ResponseEntity.status(HttpServletResponse.SC_BAD_REQUEST).body(new GeneralResponse(false, ex.getMessage(), null));
