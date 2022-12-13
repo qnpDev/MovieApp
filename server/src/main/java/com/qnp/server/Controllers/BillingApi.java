@@ -36,12 +36,7 @@ public class BillingApi {
     @Autowired
     private SocketModule socketModule;
 
-    @GetMapping
-    public ResponseEntity<?> get(){
-        return ResponseEntity.ok(billingRepo.findAll());
-    }
-
-    @GetMapping("user")
+    @GetMapping()
     public ResponseEntity<?> getByUser(){
         UsersModel user = usersRepo.findByUsername(SecurityContextHolder.getContext().getAuthentication().getName());
         List<BillingModel> data = billingRepo.findByUsers(user);
