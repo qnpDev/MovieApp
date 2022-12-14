@@ -2,6 +2,7 @@ package com.qnp.server.Controllers.Admin;
 
 import com.qnp.server.Models.CategoriesModel;
 import com.qnp.server.Models.MoviesModel;
+import com.qnp.server.Models.SeriesModel;
 import com.qnp.server.Repositories.CategoriesRepo;
 import com.qnp.server.Repositories.MoviesRepo;
 import com.qnp.server.Repositories.SeriesRepo;
@@ -56,7 +57,12 @@ public class MoviesAdminApi {
             data.setLimitAge(request.getLimitAge());
             data.setActive(request.isActive());
             data.setVip(request.isVip());
-            data.setSeries(seriesRepo.findById(request.getSeries()).get());
+            Optional<SeriesModel> seriesTmp = seriesRepo.findById(request.getSeries());
+            if(seriesTmp.isPresent()){
+                data.setSeries(seriesTmp.get());
+            }else {
+                return ResponseEntity.status(HttpServletResponse.SC_NOT_FOUND).body(new GeneralResponse(false, "not found series", null));
+            }
             List<CategoriesModel> categories = (List<CategoriesModel>) categoriesRepo.findAllById(request.getCategories());
             data.getCategories().addAll(categories);
             MoviesModel dataSave = moviesRepo.save(data);
@@ -82,7 +88,12 @@ public class MoviesAdminApi {
                 dataSave.setLimitAge(request.getLimitAge());
                 dataSave.setActive(request.isActive());
                 dataSave.setVip(request.isVip());
-                dataSave.setSeries(seriesRepo.findById(request.getSeries()).get());
+                Optional<SeriesModel> seriesTmp = seriesRepo.findById(request.getSeries());
+                if(seriesTmp.isPresent()){
+                    dataSave.setSeries(seriesTmp.get());
+                }else {
+                    return ResponseEntity.status(HttpServletResponse.SC_NOT_FOUND).body(new GeneralResponse(false, "not found series", null));
+                }
                 if(request.getCategories().size() > 0){
                     List<CategoriesModel> categories = (List<CategoriesModel>) categoriesRepo.findAllById(request.getCategories());
                     dataSave.getCategories().clear();
