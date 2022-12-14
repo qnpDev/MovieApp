@@ -3,6 +3,7 @@ package com.qnp.server.Controllers.Admin;
 import com.qnp.server.Models.CategoriesModel;
 import com.qnp.server.Models.SeriesModel;
 import com.qnp.server.Repositories.CategoriesRepo;
+import com.qnp.server.Repositories.MoviesRepo;
 import com.qnp.server.Repositories.SeriesRepo;
 import com.qnp.server.Utils.Payloads.Admin.CategoriesAdminRequest;
 import com.qnp.server.Utils.Payloads.Admin.SeriesAdminRequest;
@@ -28,6 +29,9 @@ public class SeriesAdminApi {
 
     @Autowired
     private CategoriesRepo categoriesRepo;
+
+    @Autowired
+    MoviesRepo  moviesRepo;
 
     @GetMapping
     public ResponseEntity<?> get(){
@@ -88,7 +92,9 @@ public class SeriesAdminApi {
         try {
             Optional<SeriesModel> data = seriesRepo.findById(id);
             if (data.isPresent()) {
-                seriesRepo.delete(data.get());
+                SeriesModel series = data.get();
+                moviesRepo.deleteAll(series.moviesCustomGet());
+                seriesRepo.delete(series);
                 return ResponseEntity.ok(new GeneralResponse(true, "success", null));
             } else {
                 return ResponseEntity.status(HttpServletResponse.SC_NOT_FOUND).body(new GeneralResponse(false, "not found", null));

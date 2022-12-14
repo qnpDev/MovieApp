@@ -5,6 +5,7 @@ import com.qnp.server.Models.MoviesModel;
 import com.qnp.server.Models.SeriesModel;
 import com.qnp.server.Repositories.CategoriesRepo;
 import com.qnp.server.Repositories.MoviesRepo;
+import com.qnp.server.Repositories.ReviewsRepo;
 import com.qnp.server.Repositories.SeriesRepo;
 import com.qnp.server.Utils.Payloads.Admin.MoviesAdminRequest;
 import com.qnp.server.Utils.Payloads.GeneralResponse;
@@ -28,6 +29,9 @@ public class MoviesAdminApi {
 
     @Autowired
     private SeriesRepo seriesRepo;
+
+    @Autowired
+    ReviewsRepo  reviewsRepo;
 
     @GetMapping
     public ResponseEntity<?> get(){
@@ -150,7 +154,9 @@ public class MoviesAdminApi {
         try {
             Optional<MoviesModel> data = moviesRepo.findById(id);
             if (data.isPresent()) {
-                moviesRepo.delete(data.get());
+                MoviesModel movie = data.get();
+                reviewsRepo.deleteAll(movie.getReviews());
+                moviesRepo.delete(movie);
                 return ResponseEntity.ok(new GeneralResponse(true, "success", null));
             } else {
                 return ResponseEntity.status(HttpServletResponse.SC_NOT_FOUND).body(new GeneralResponse(false, "not found", null));

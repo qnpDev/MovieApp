@@ -3,6 +3,9 @@ package com.qnp.server.Controllers.Admin;
 import com.qnp.server.Models.MoviesModel;
 import com.qnp.server.Models.ReviewsModel;
 import com.qnp.server.Models.UsersModel;
+import com.qnp.server.Repositories.BillingRepo;
+import com.qnp.server.Repositories.ChatRepo;
+import com.qnp.server.Repositories.ReviewsRepo;
 import com.qnp.server.Repositories.UsersRepo;
 import com.qnp.server.Utils.Payloads.Admin.ReviewsAdminRequest;
 import com.qnp.server.Utils.Payloads.Admin.UsersAdminRequest;
@@ -28,6 +31,15 @@ public class UsersAdminApi {
 
     @Autowired
     PasswordEncoder passwordEncoder;
+
+    @Autowired
+    ReviewsRepo  reviewsRepo;
+
+    @Autowired
+    ChatRepo  chatRepo;
+
+    @Autowired
+    BillingRepo  billingRepo;
 
     @GetMapping
     public ResponseEntity<?> get(){
@@ -83,6 +95,7 @@ public class UsersAdminApi {
             if(data.isPresent()){
                 UsersModel dataSave = data.get();
                 dataSave.setActive(false);
+                chatRepo.deleteAll(dataSave.chatCustomGet());
                 dataSave.setRefreshToken((new JwtRefreshToken()).generate());
                 dataSave = usersRepo.save(dataSave);
                 return ResponseEntity.ok(dataSave);
@@ -117,7 +130,11 @@ public class UsersAdminApi {
         try {
             Optional<UsersModel> data = usersRepo.findById(id);
             if (data.isPresent()) {
-                usersRepo.delete(data.get());
+                UsersModel user = data.get();
+                reviewsRepo.deleteAll(user.reviewsCustomGet());
+                chatRepo.deleteAll(user.chatCustomGet());
+                billingRepo.deleteAll(user.billingCustomGet());
+                usersRepo.delete(user);
                 return ResponseEntity.ok(new GeneralResponse(true, "success", null));
             } else {
                 return ResponseEntity.status(HttpServletResponse.SC_NOT_FOUND).body(new GeneralResponse(false, "not found", null));

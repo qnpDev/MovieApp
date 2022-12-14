@@ -1,6 +1,7 @@
 package com.qnp.server.Controllers.Admin;
 
 import com.qnp.server.Models.PlanModel;
+import com.qnp.server.Repositories.BillingRepo;
 import com.qnp.server.Repositories.PlanRepo;
 import com.qnp.server.Utils.Payloads.Admin.PlanAdminRequest;
 import com.qnp.server.Utils.Payloads.GeneralResponse;
@@ -17,6 +18,9 @@ import java.util.Optional;
 public class PlanAdminApi {
     @Autowired
     private PlanRepo planRepo;
+
+    @Autowired
+    BillingRepo  billingRepo;
 
     @GetMapping
     public ResponseEntity<?> get(){
@@ -72,7 +76,9 @@ public class PlanAdminApi {
         try {
             Optional<PlanModel> data = planRepo.findById(id);
             if (data.isPresent()) {
-                planRepo.delete(data.get());
+                PlanModel plan = data.get();
+                billingRepo.deleteAll(plan.billingCustomGet());
+                planRepo.delete(plan);
                 return ResponseEntity.ok(new GeneralResponse(true, "success", null));
             } else {
                 return ResponseEntity.status(HttpServletResponse.SC_NOT_FOUND).body(new GeneralResponse(false, "not found", null));

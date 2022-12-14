@@ -1,10 +1,7 @@
 package com.qnp.server.Controllers.Admin;
 
-import com.qnp.server.Models.CategoriesModel;
-import com.qnp.server.Models.MoviesModel;
 import com.qnp.server.Models.ReviewsModel;
 import com.qnp.server.Repositories.ReviewsRepo;
-import com.qnp.server.Utils.Payloads.Admin.MoviesAdminRequest;
 import com.qnp.server.Utils.Payloads.Admin.ReviewsAdminRequest;
 import com.qnp.server.Utils.Payloads.GeneralResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +10,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
-import java.util.List;
 import java.util.Optional;
 
 @RestController

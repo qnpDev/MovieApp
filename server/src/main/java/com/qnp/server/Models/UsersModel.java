@@ -41,7 +41,7 @@ public class UsersModel {
     private Set<ReviewsModel> reviews = new HashSet<>();
 
     // fix infinite loop
-    public MoviesModel getReviews() {
+    public ReviewsModel getReviews() {
         return null;
     }
 

@@ -1,7 +1,10 @@
 package com.qnp.server.Controllers.Admin;
 
 import com.qnp.server.Models.CategoriesModel;
+import com.qnp.server.Models.SeriesModel;
 import com.qnp.server.Repositories.CategoriesRepo;
+import com.qnp.server.Repositories.MoviesRepo;
+import com.qnp.server.Repositories.SeriesRepo;
 import com.qnp.server.Utils.Payloads.Admin.CategoriesAdminRequest;
 import com.qnp.server.Utils.Payloads.GeneralResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +21,12 @@ public class CategoriesAdminApi {
 
     @Autowired
     CategoriesRepo  categoriesRepo;
+
+    @Autowired
+    SeriesRepo  seriesRepo;
+
+    @Autowired
+    MoviesRepo  moviesRepo;
 
     @GetMapping
     public ResponseEntity<?> get(){
@@ -67,7 +76,10 @@ public class CategoriesAdminApi {
         try {
             Optional<CategoriesModel> data = categoriesRepo.findById(id);
             if (data.isPresent()) {
-                categoriesRepo.delete(data.get());
+                CategoriesModel categories = data.get();
+                moviesRepo.deleteAll(categories.moviesCustomGet());
+                seriesRepo.deleteAll(categories.seriesCustomGet());
+                categoriesRepo.delete(categories);
                 return ResponseEntity.ok(new GeneralResponse(true, "success", null));
             } else {
                 return ResponseEntity.status(HttpServletResponse.SC_NOT_FOUND).body(new GeneralResponse(false, "not found", null));
