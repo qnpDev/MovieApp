@@ -55,6 +55,23 @@ public class MoviesModel {
     @OneToMany(mappedBy="movies", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     private List<ReviewsModel> reviews = new ArrayList<>();
 
+    public double getAverageRating(){
+        if(reviews.size() > 0){
+            double rating = 0.0;
+            for (ReviewsModel review : reviews){
+                rating += review.getRating();
+            }
+            return rating / reviews.size();
+        }else{
+            return 0.0;
+        }
+
+    }
+
+    public int getReviewsCount(){
+        return reviews.size();
+    }
+
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
     private Date createdAt;
