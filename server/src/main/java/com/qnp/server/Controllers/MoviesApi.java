@@ -1,7 +1,6 @@
 package com.qnp.server.Controllers;
 
 import com.qnp.server.Models.MoviesModel;
-import com.qnp.server.Models.SeriesModel;
 import com.qnp.server.Repositories.MoviesRepo;
 import com.qnp.server.Utils.Payloads.GeneralResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,14 +22,19 @@ public class MoviesApi {
 
     @GetMapping
     public ResponseEntity<?> get(){
-        return ResponseEntity.ok(moviesRepo.findAll());
+        return ResponseEntity.ok(moviesRepo.findByActiveTrue());
     }
 
     @GetMapping("{id}")
     public ResponseEntity<?> getById(@PathVariable Long id){
         Optional<MoviesModel> data = moviesRepo.findById(id);
         if(data.isPresent()){
-            return ResponseEntity.ok(data.get());
+            MoviesModel movie = data.get();
+            if(movie.isActive()){
+                return ResponseEntity.ok(movie);
+            }else{
+                return ResponseEntity.status(HttpServletResponse.SC_NOT_FOUND).body(new GeneralResponse(false, "Not found", null));
+            }
         }
         return ResponseEntity.status(HttpServletResponse.SC_NOT_FOUND).body(new GeneralResponse(false, "Not found", null));
     }

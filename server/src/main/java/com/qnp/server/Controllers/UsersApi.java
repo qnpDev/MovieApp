@@ -33,7 +33,12 @@ public class UsersApi {
     public ResponseEntity<?> getById(@PathVariable Long id){
         Optional<UsersModel> data = usersRepo.findById(id);
         if(data.isPresent()){
-            return ResponseEntity.ok(data.get());
+            UsersModel user = data.get();
+            if(user.isActive()){
+                return ResponseEntity.ok(user);
+            }else{
+                return ResponseEntity.status(HttpServletResponse.SC_NOT_FOUND).body(new GeneralResponse(false, "User is banned", null));
+            }
         }
         return ResponseEntity.status(HttpServletResponse.SC_NOT_FOUND).body(new GeneralResponse(false, "Not found", null));
     }
