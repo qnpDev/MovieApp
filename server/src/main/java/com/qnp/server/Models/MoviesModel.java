@@ -65,7 +65,6 @@ public class MoviesModel {
         }else{
             return 0.0;
         }
-
     }
 
     public int getReviewsCount(){
