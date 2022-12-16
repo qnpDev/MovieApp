@@ -90,7 +90,7 @@ public class ReviewApi {
             if (data.isPresent()) {
                 ReviewsModel review = data.get();
                 if(review.getUsers().getId() == user.getId()){
-                    reviewsRepo.delete(data.get());
+                    reviewsRepo.delete(review);
                     return ResponseEntity.ok(new GeneralResponse(true, "success", null));
                 }else{
                     return ResponseEntity.status(HttpServletResponse.SC_BAD_REQUEST).body(new GeneralResponse(false, "not permission", null));

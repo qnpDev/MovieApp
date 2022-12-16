@@ -37,7 +37,7 @@ public class UsersModel {
 
     private boolean active = true;
 
-    @OneToMany(mappedBy="users", fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
+    @OneToMany(mappedBy="users", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     private Set<ReviewsModel> reviews = new HashSet<>();
 
     // fix infinite loop
@@ -54,7 +54,7 @@ public class UsersModel {
     }
     //end fix infinite loop
 
-    @OneToMany(mappedBy="users", fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
+    @OneToMany(mappedBy="users", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     private Set<ChatModel> chat = new HashSet<>();
 
     // fix infinite loop
@@ -67,7 +67,7 @@ public class UsersModel {
     }
     //end fix infinite loop
 
-    @OneToMany(mappedBy="users", fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
+    @OneToMany(mappedBy="users", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     private Set<BillingModel> billing = new HashSet<>();
 
     // fix infinite loop
