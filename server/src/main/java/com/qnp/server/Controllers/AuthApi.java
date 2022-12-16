@@ -180,7 +180,7 @@ public class AuthApi {
             ResetPasswordModel resetModel = resetPasswordRepo.findByToken(request.getToken());
             if(resetModel!= null){
                 if(((new Date()).getTime() - resetModel.getCreatedAt().getTime()) < (10 * 60 * 1000)){
-                    Optional<UsersModel> user = usersRepo.findById(resetModel.getId());
+                    Optional<UsersModel> user = usersRepo.findById(resetModel.getUid());
                     if(user.isPresent()){
                         UsersModel userSave = user.get();
                         userSave.setPassword(passwordEncoder.encode(request.getPassword()));

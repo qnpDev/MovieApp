@@ -1,6 +1,5 @@
 package com.qnp.server.Controllers;
 
-import com.qnp.server.Models.CategoriesModel;
 import com.qnp.server.Models.ChatModel;
 import com.qnp.server.Repositories.ChatRepo;
 import com.qnp.server.Utils.Payloads.GeneralResponse;
@@ -32,7 +31,10 @@ public class ChatApi {
     public ResponseEntity<?> getById(@PathVariable Long id){
         Optional<ChatModel> data = chatRepo.findById(id);
         if(data.isPresent()){
-            return ResponseEntity.ok(data.get());
+            ChatModel chat = data.get();
+            chat.getUsers().setPassword(null);
+            chat.getUsers().setRefreshToken(null);
+            return ResponseEntity.ok(chat);
         }
         return ResponseEntity.status(HttpServletResponse.SC_NOT_FOUND).body(new GeneralResponse(false, "Not found", null));
     }
