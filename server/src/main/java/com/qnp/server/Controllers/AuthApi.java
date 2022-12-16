@@ -154,7 +154,9 @@ public class AuthApi {
                     MimeMessage message = mailer.createMimeMessage();
                     MimeMessageHelper helper = new MimeMessageHelper(message, true, "utf-8");
 
-                    String htmlMsg = "<center><h1>" + resetPassRequest.getPath() + "/" + resetToken + "</h1></center>";
+                    String htmlMsg = "<center><h1 style='color: #0066FF'>MovieApp ResetPassword</h1></center><br/>"
+                            + "<center><b>Please click on the link below to reset your password</b></center><br/>"
+                            + "<center><a href='" + resetPassRequest.getPath() + "/" + resetToken + "'>" + resetPassRequest.getPath() + "/" + resetToken + "</a></center>";
 
                     message.setContent(htmlMsg, "text/html");
                     helper.setTo(resetPassRequest.getEmail());
