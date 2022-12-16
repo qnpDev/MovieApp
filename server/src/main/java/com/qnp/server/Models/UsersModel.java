@@ -49,9 +49,9 @@ public class UsersModel {
         return reviews;
     }
 
-    public int getReviewsCount() {
-        return reviews.size();
-    }
+//    public int getReviewsCount() {
+//        return reviews.size();
+//    }
     //end fix infinite loop
 
     @OneToMany(mappedBy="users", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
