@@ -14,4 +14,10 @@ public interface MoviesRepo extends CrudRepository<MoviesModel, Long> {
 
     @Query(value = "SELECT count(*) FROM MoviesModel")
     Long movieCountAll();
+
+    @Query("SELECT p FROM MoviesModel p WHERE " +
+            "p.active=true AND (" +
+            "p.title LIKE CONCAT('%',:query, '%')" +
+            "Or p.description LIKE CONCAT('%', :query, '%'))")
+    Iterable<MoviesModel> search(String query);
 }
