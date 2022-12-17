@@ -1,0 +1,104 @@
+.customModal {
+  position: fixed;
+  inset: -50px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 20;
+  opacity: 0;
+  transform: translateY(-50px);
+  pointer-events: none;
+  transition: all 0.2s linear;
+  &.active {
+    opacity: 1;
+    pointer-events: inherit;
+    transform: translateY(0);
+  }
+  * {
+    font-family: "Poppins", sans-serif;
+  }
+}
+.customModalOverlay {
+  position: absolute;
+  inset: 0;
+  cursor: pointer;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+.customModalContainer {
+  max-width: 500px;
+  width: 100%;
+  background-color: rgba(242, 242, 242, 1);
+  margin-left: auto;
+  margin-right: auto;
+  z-index: 2;
+  border-radius: 4px;
+  &.md {
+    max-width: 800px;
+  }
+}
+.customModalHead {
+  padding: 10px 16px;
+  position: relative;
+  border-bottom: 1px solid rgb(223, 223, 223);
+
+  p {
+    font-size: 16px;
+    font-weight: bold;
+  }
+  .close {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    font-size: 24px;
+    cursor: pointer;
+    transition: all 0.2s linear;
+    &:hover {
+      opacity: 0.7;
+    }
+  }
+}
+.customModalContent {
+  padding: 16px;
+}
+
+.customModalFooter {
+  display: flex;
+  justify-content: flex-end;
+  padding: 16px;
+  border-top: 1px solid rgb(159, 159, 159);
+  button {
+    color: #fff;
+    padding: 8px 20px;
+    border-radius: 4px;
+    transition: all 0.2s linear;
+    margin-left: 12px;
+    &:hover {
+      opacity: 0.7;
+    }
+    &.pri {
+      background-color: rgb(32, 103, 255);
+    }
+    &.sec {
+      background-color: rgb(255, 81, 81);
+    }
+    &.clo {
+      background-color: rgb(174, 172, 168);
+    }
+  }
+}
+.form-group label {
+  margin-bottom: 5px;
+  font-size: 12px;
+  font-weight: bold;
+}
+.form-group input {
+  font-size: 14px;
+  padding: 8px 16px;
+  border: 1px solid rgb(231, 231, 231);
+  outline: none;
+  margin-bottom: 12px;
+  border-radius: 4px;
+  &:focus {
+    border-color: rgb(188, 205, 255);
+  }
+}

@@ -1,0 +1,12 @@
+.movie-watch {
+    margin-top: 40px;
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+    * {
+        font-family: 'Poppins', sans-serif;
+    }
+    &__contaier {
+        padding: 20px;
+    }
+}
