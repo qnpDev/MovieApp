@@ -19,8 +19,10 @@ public class SeriesModel {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Lob
     private String title;
 
+    @Lob
     private String type;
 
     @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)

@@ -15,6 +15,7 @@ public class ChatModel {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Lob
     private String message;
 
     @ManyToOne

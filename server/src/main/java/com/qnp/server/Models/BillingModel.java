@@ -27,6 +27,7 @@ public class BillingModel {
     @Column(unique = true)
     private String code = Generators.randomBasedGenerator().generate().toString();
 
+    @Lob
     private String description;
 
     @ManyToOne

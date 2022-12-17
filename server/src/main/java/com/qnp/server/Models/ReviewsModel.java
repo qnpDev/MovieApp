@@ -42,6 +42,7 @@ public class ReviewsModel {
 
     private float rating;
 
+    @Lob
     private String content;
 
     @CreationTimestamp

@@ -17,8 +17,10 @@ public class PlanModel {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Lob
     private String name;
 
+    @Lob
     private String description;
 
     private double price;

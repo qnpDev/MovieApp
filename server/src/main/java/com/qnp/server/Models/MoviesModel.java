@@ -17,8 +17,10 @@ public class MoviesModel {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Lob
     private String title;
 
+    @Lob
     private String description;
 
     private String imgTitle;
