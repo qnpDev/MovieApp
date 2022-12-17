@@ -3,6 +3,7 @@ package com.qnp.server.Utils.Payloads.Admin;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
+import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.NotBlank;
 
 @Data
@@ -11,12 +12,12 @@ public class PlanAdminRequest {
     @NotBlank
     String name;
 
-    @NotBlank
+    @DecimalMin("0.0")
     double price;
 
     String description;
 
-    @NotBlank
+    @DecimalMin("0.0")
     Long days;
 
 }
