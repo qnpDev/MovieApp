@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.time.Year;
 import java.util.Calendar;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/admin/home")
@@ -68,7 +69,11 @@ public class HomeAdminApi {
 
     @GetMapping("billing-summary")
     public ResponseEntity<?> getBillingSummary(){
-        return ResponseEntity.ok(billingRepo.billingSummary());
+        if(billingRepo.billingConfirmCount() > 0){
+            return ResponseEntity.ok(billingRepo.billingSummary());
+        }else{
+            return ResponseEntity.ok(0);
+        }
     }
 
     @GetMapping("analysis")

@@ -15,6 +15,9 @@ public interface BillingRepo extends CrudRepository<BillingModel, Long> {
     @Query(value = "SELECT sum(amount) FROM BillingModel WHERE confirmed=true")
     double billingSummary();
 
+    @Query(value = "SELECT count(b) FROM BillingModel b WHERE b.confirmed=true")
+    Long billingConfirmCount();
+
     @Query("SELECT b from BillingModel b WHERE year(b.createdAt) = :year")
     Iterable<BillingModel> findByCreateYear(@Param("year") Integer year);
 }
